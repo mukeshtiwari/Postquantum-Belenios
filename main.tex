@@ -1,0 +1,58 @@
+\documentclass[11pt]{article}
+% UKRI "Enabling AI adoption across science and engineering" -- Vision and Approach
+% Format rules: max 4 A4 sides + 1 optional workplan page, 11pt Arial (or equivalent), margins >= 2cm.
+
+\usepackage[T1]{fontenc}
+\usepackage[scaled=0.92]{helvet} % Arial-equivalent
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage[british]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds}
+\usepackage{pgfgantt}
+\usepackage{caption}
+\usepackage{csquotes}
+\usepackage[numbers,sort&compress]{natbib}
+\renewcommand{\bibsection}{\par\vspace{2pt}\noindent\textbf{References}\par}
+\setlength{\bibsep}{0pt}
+\usepackage[hidelinks]{hyperref}
+
+\captionsetup{font=small,labelfont=bf,skip=3pt}
+\titleformat{\section}{\normalsize\bfseries\color{blue!50!black}}{\thesection}{0.6em}{}
+\titlespacing*{\section}{0pt}{6pt}{2pt}
+\titleformat{\subsection}[runin]{\normalsize\bfseries}{}{0pt}{}[.]
+\titlespacing*{\subsection}{0pt}{3pt}{0.6em}
+\setlist{nosep,leftmargin=1.2em}
+\setlength{\parskip}{2pt}
+\setlength{\parindent}{0pt}
+
+% ---------- Placeholders: fill in before submission ----------
+\newcommand{\leadorg}{[Lead organisation]}
+\newcommand{\PQB}{\textsc{PQ-Belenios}}
+
+\begin{document}
+
+\begin{center}
+{\large\bfseries \PQB: AI-Assisted Formal Verification for the Post-Quantum Migration of Verifiable Electronic Voting}\\[2pt]
+{\small Mukesh Tiwari, Fran\c{c}ois Dupressoir, Nirav Ajmeri, Xiyue Zhang, Kerstin Eder (University of Bristol), Kristian Gj{\o}steen (NTNU)}
+\end{center}
+
+\section{Vision}
+Belenios tallies complex voting methods such as the Schulze method with mixnets. 
+All of its security rests on classical cryptography, so ballot secrecy is exposed to 
+harvest-now-decrypt-later attacks: ciphertexts on today's bulletin board could be decrypted 
+by a future quantum computer. 
+
+
+{\small
+\bibliographystyle{abbrv}
+\bibliography{ref}
+}
+
+\end{document}
