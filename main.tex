@@ -30,35 +30,49 @@
 \end{center}
 
 \section{Vision}
-Recent growth in quantum technology is threating all kind of classical public-key cryptography but one place where it is very 
-threatining the most is electronic ballot privacy. Many countries conduct online election for the citizens living abroad, e.g., France,
-Switzerland, Estonia, etc. To ensure universal verifiability --any one can verify the election outcome-- encrypted ballots and their 
-corresponding validity in terms of zero-knowloedge proof is published. This however threatns the privacy because all the encryption 
-and zero-knowledge proof is based on the discrete-logarithm assumption that can be easily broken by a quantum computer. Therefore, we propose an 
-alterantive: migrating all the primitives in Belenios to post-quantum setting. Belenios is one of the most widely used and scrutinised 
-voting system. In addition, it supports simple approval and list votes through homomorphic tallying, and complex methods (Condorcet–Schulze, 
-Single Transferable Vote and Majority Judgment) through verifiable mix-nets.
+In a Belenios election~\cite{cortier2019belenios}, every encrypted ballot and the corresponding zero-knowledge proof 
+of its validity are published on a public website
+so that \emph{anyone} can verify the result. That openness is a strength today and a liability tomorrow: the
+encryption and zero-knowledge proofs rest on the discrete logarithm assumption, which a quantum computer will
+break. Anyone can download the ballots now and, once such a computer exists, learn how each person voted
+(\emph{harvest now, decrypt later}). Ballot secrecy must last a lifetime, so the move to post-quantum
+cryptography cannot wait for the NCSC's 2035 deadline~\cite{ncsc2025pqc}.
+
+The post-quantum cryptography to fix this exists~\cite{aranha2023mixnet}, but it is far harder to get right
+than what it replaces. The strongest assurance available, a machine-checked proof, has cost experts years for
+each system. At that rate, almost nothing will be verified before 2035. \textbf{Our vision is that AI agents,
+supervised by experts and checked by a proof assistant, turn machine-checked post-quantum migration from a
+multi-year research project into a task of months.} Belenios is our proving ground because it is a widely deployed and heavily
+scrutinised system~\cite{cortier2017sp,cortier2018belenioseasycrypt}. Moreover, its code base has been reused 
+to build the official independent verifier for the 2022 French legislative election for overseas voters, 
+commissioned by the French foreign ministry~\cite{vvfe,cortier2023french}.
+
+
 
 \section{From classical to post-quantum primitives in Belenios}
-Given that Belenios~\cite{cortier2019belenios} is an old and mature system that supports many classical
-primitives such as ElGamal encryption, Schnorr signatures, Chaum--Pedersen and disjunctive zero-knowledge proofs,
-Pedersen threshold key generation, and the Terelius--Wikstr\"om proof of shuffle, it is not possible to 
-migrate all these primitives in 12 months to a post-quantum setting. In addition, for some of these classical 
-primitives, there are no corresponding quantum primitives. Therefore, our goal with project is to:
+Belenios~\cite{cortier2019belenios} supports many classical 
+primitives: ElGamal encryption, Schnorr signatures, Chaum--Pedersen and disjunctive zero-knowledge proofs, 
+Pedersen threshold key generation, and the Terelius--Wikstr\"om shuffle proof. It counts simple approval
+and list votes through homomorphic tallying, and complex methods (Condorcet--Schulze, Single Transferable
+Vote, and Majority Judgment) through verifiable mix-nets. 
+We will start with the primitives that matter most for ballot secrecy and election integrity: ballot
+encryption, the proof of shuffle, verifiable decryption, signatures and secure channels. The rest
+(ballot validity proofs and key generation) will follow in later work.
+
 \begin{itemize}
-\item \textbf{Standardised primitives with existing machine-checked proofs.} Ballot signatures move to ML-DSA 
-and trustee channels to ML-KEM. Both are NIST standards whose security proofs have already been machine-checked 
-in EasyCrypt~\cite{barbosa2023dilithium,almeida2024mlkem}. ML-DSA generates its keys deterministically from a 
-32-byte seed, so Belenios can keep deriving a voter's signing key from their private credential. Here the 
-work is integration rather than new proof.
-\item \textbf{Lattice protocols for the mix-net: the core of this project.} BGV encryption, the lattice 
-shuffle proof and verifiable distributed decryption~\cite{aranha2023mixnet} together give a post-quantum 
-version of every step of a Belenios mix-net election, from casting a ballot to publishing the result. None 
-of them has a machine-checked proof. Each has a classical counterpart that does (ElGamal and the 
-Terelius--Wikstr\"om shuffle~\cite{cortier2018belenioseasycrypt,haines2019verified,287095}), which makes 
-them a good test of whether AI can carry an existing proof across to the post-quantum setting. Distributed 
-decryption is the hardest of the three, because its noise-drowning argument is statistical; we expect it to 
-show where current AI falls short.
+\item \textbf{Standardised primitives with existing machine-checked proofs.} We move ballot signatures 
+to ML-DSA and trustee channels to ML-KEM. Both are NIST standards, and their security proofs have already 
+been machine-checked in EasyCrypt~\cite{barbosa2023dilithium,almeida2024mlkem}. ML-DSA derives its keys 
+deterministically from a 32-byte seed, so Belenios can still derive a voter's signing key from their private 
+credential. Here the work is mainly integration rather than new proof development.
+\item \textbf{Lattice protocols for the mix-net (the core of this project).} BGV encryption, the lattice 
+shuffle proof, and verifiable distributed decryption~\cite{aranha2023mixnet} together give a post-quantum 
+version of every step in a Belenios mix-net election, from casting a ballot to publishing the result. None 
+of them has a machine-checked proof. None of the lattice protocols has a machine-checked proof yet. It 
+will be a good test whether AI can automate an existing pen-and-paper proof in the post-quantum setting because 
+the classical analogue does have a machine-checked proof, e.g., 
+ElGamal and the Terelius--Wikstr\"om shuffle~\cite{cortier2018belenioseasycrypt,haines2019verified,287095}
+that has taken years to develop. 
 \end{itemize}
 
 
@@ -67,8 +81,34 @@ primitives from start to finish, apart from key generation, with its core crypto
 
 \section{Why AI}
 
-\section{Work Packages}
+\textbf{Transformative, not incremental.} Today, a machine-checked security proof is a multi-year research
+project carried out after a protocol is designed, if it is done at all. As a result, almost no deployed
+cryptographic system has one, and the post-quantum migration is happening on paper proofs alone. We will
+test whether AI can change this practice: whether existing machine-checked proofs can be \emph{transferred}
+to post-quantum primitives in weeks rather than years, with the proof assistant guaranteeing that every
+AI-produced step is correct. Belenios is a deliberately demanding first test, because lattice-based proofs
+involve noise bounds, norm reasoning and approximate soundness that no AI system has yet handled. The project
+will show whether machine-checked assurance can become a routine part of cryptographic migration rather
+than a rare luxury.
 
+Recent results show that this shift is under way. Agentic AI has produced EasyCrypt proofs in hours that
+previously took experts months~\cite{ma2026shannonprover}, and has written Rocq proofs of crash-freedom for
+production software at a scale of 180 million lines~\cite{anthropic2026formal}. Both report the same
+limitation: a proof is only as good as its specification. Neither has tackled the probabilistic,
+lattice-based security proofs that the post-quantum migration needs. This project tests exactly that step.
+
+\section{Work Packages}
+\textbf{WP1}
+\textbf{WP2}
+\textbf{WP3}
+\textbf{WP4: Trustworthy AI-assisted verification (Ajmeri, Zhang, Eder; M1--M12).} The proof assistant
+rejects any incorrect AI-produced proof, so the remaining risk lies in the specification: an AI-drafted
+theorem may be vacuous, or may describe the wrong protocol. Large-scale AI verification efforts report
+exactly this failure mode, including agents that weaken a specification so that it becomes easier to
+prove~\cite{anthropic2026formal}. WP4 therefore requires a named domain expert to sign off every
+AI-drafted or AI-modified specification, and runs automated checks on each one: \emph{specification
+mutation} (a deliberately broken protocol must fail to verify) and vacuity tests. It also logs the provenance of every
+AI-produced artefact.
 
 \section{Team}
 
