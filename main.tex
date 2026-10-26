@@ -8,6 +8,7 @@
 \usepackage{graphicx}
 \usepackage{enumitem}
 \usepackage{booktabs}
+\usepackage{tabularx}
 \usepackage{titlesec}
 \usepackage{xcolor}
 \usepackage{tikz}
@@ -32,13 +33,43 @@
 Recent growth in quantum technology is threating all kind of classical public-key cryptography but one place where it is very 
 threatining the most is electronic ballot privacy. Many countries conduct online election for the citizens living abroad, e.g., France,
 Switzerland, Estonia, etc. To ensure universal verifiability --any one can verify the election outcome-- encrypted ballots and their 
-corresponding validity in terms of zero-knowloedge proof is published. 
+corresponding validity in terms of zero-knowloedge proof is published. This however threatns the privacy because all the encryption 
+and zero-knowledge proof is based on the discrete-logarithm assumption that can be easily broken by a quantum computer. Therefore, we propose an 
+alterantive: migrating all the primitives in Belenios to post-quantum setting. Belenios is one of the most widely used and scrutinised 
+voting system. In addition, it supports simple approval and list votes through homomorphic tallying, and complex methods (Condorcet–Schulze, 
+Single Transferable Vote and Majority Judgment) through verifiable mix-nets.
+
+\section{From classical to post-quantum primitives in Belenios}
+Given that Belenios~\cite{cortier2019belenios} is an old and mature system that supports many classical
+primitives such as ElGamal encryption, Schnorr signatures, Chaum--Pedersen and disjunctive zero-knowledge proofs,
+Pedersen threshold key generation, and the Terelius--Wikstr\"om proof of shuffle, it is not possible to 
+migrate all these primitives in 12 months to a post-quantum setting. In addition, for some of these classical 
+primitives, there are no corresponding quantum primitives. Therefore, our goal with project is to:
+\begin{itemize}
+\item \textbf{Standardised primitives with existing machine-checked proofs.} Ballot signatures move to ML-DSA 
+and trustee channels to ML-KEM. Both are NIST standards whose security proofs have already been machine-checked 
+in EasyCrypt~\cite{barbosa2023dilithium,almeida2024mlkem}. ML-DSA generates its keys deterministically from a 
+32-byte seed, so Belenios can keep deriving a voter's signing key from their private credential. Here the 
+work is integration rather than new proof.
+\item \textbf{Lattice protocols for the mix-net: the core of this project.} BGV encryption, the lattice 
+shuffle proof and verifiable distributed decryption~\cite{aranha2023mixnet} together give a post-quantum 
+version of every step of a Belenios mix-net election, from casting a ballot to publishing the result. None 
+of them has a machine-checked proof. Each has a classical counterpart that does (ElGamal and the 
+Terelius--Wikstr\"om shuffle~\cite{cortier2018belenioseasycrypt,haines2019verified,287095}), which makes 
+them a good test of whether AI can carry an existing proof across to the post-quantum setting. Distributed 
+decryption is the hardest of the three, because its noise-drowning argument is statistical; we expect it to 
+show where current AI falls short.
+\end{itemize}
 
 
-Belenios tallies complex voting methods such as the Schulze method with mixnets. 
-All of its security rests on classical cryptography, so ballot secrecy is exposed to 
-harvest-now-decrypt-later attacks: ciphertexts on today's bulletin board could be decrypted 
-by a future quantum computer. 
+By the end of the project, a Schulze, STV or Majority Judgment election in Belenios can run on post-quantum 
+primitives from start to finish, apart from key generation, with its core cryptographic components machine-checked.
+
+
+
+
+
+
 
 
 {\small
