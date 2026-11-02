@@ -26,7 +26,7 @@
 
 \begin{center}
 {\large\bfseries PQ-Belenios: AI-Assisted Formal Verification for the Post-Quantum Migration of Verifiable Electronic Voting}\\[2pt]
-{\small Mukesh Tiwari, Fran\c{c}ois Dupressoir, Nirav Ajmeri, Xiyue Zhang, Kerstin Eder (University of Bristol), Kristian Gj{\o}steen (NTNU)}
+{\small Mukesh Tiwari, Fran\c{c}ois Dupressoir, Kerstin Eder (University of Bristol), Kristian Gj{\o}steen (NTNU)}
 \end{center}
 
 \section{Vision}
@@ -38,14 +38,24 @@ break. Anyone can download the ballots now and, once such a computer exists, lea
 (\emph{harvest now, decrypt later}). Ballot secrecy must last a lifetime, so the move to post-quantum
 cryptography cannot wait for the NCSC's 2035 deadline~\cite{ncsc2025pqc}.
 
-The post-quantum cryptography to fix this exists~\cite{aranha2023mixnet}, but it is far harder to get right
-than what it replaces. The strongest assurance available, a machine-checked proof, has cost experts years for
-each system. At that rate, almost nothing will be verified before 2035. \textbf{Our vision is that AI agents,
-supervised by experts and checked by a proof assistant, turn machine-checked post-quantum migration from a
-multi-year research project into a task of months.} Belenios is our proving ground because it is a widely deployed and heavily
-scrutinised system~\cite{cortier2017sp,cortier2018belenioseasycrypt}. Moreover, its code base has been reused 
-to build the official independent verifier for the 2022 French legislative election for overseas voters, 
-commissioned by the French foreign ministry~\cite{vvfe,cortier2023french}.
+Post-quantum replacements for these primitives exist, but they are much harder to get right.
+The lattice-based mix-net of Aranha et al.~\cite{aranha2023mixnet} (CCS 2023) came with a security proof and an
+implementation, yet Bootle et al.~\cite{bootle2025mixnets} showed that a malicious mixer can change votes without
+being detected. The proof used a step that holds over fields but fails over the rings used in lattice cryptography.
+The same bug appears in an earlier paper~\cite{aranha2021shuffle} and a later one~\cite{hough2025cic}, and passed
+three rounds of peer review. Bootle et al.\ propose a fix, but their proof is again on paper only and may hide a
+similar gap. Machine-checked proofs catch such errors, but today each one takes experts years; at that rate, almost
+nothing will be verified before 2035. \textbf{Our vision is that AI agents, supervised by experts and checked by a proof assistant, 
+turn machine-checked post-quantum migration from a multi-year research project into a task of months.} We will use 
+AI agents at both ends of the pipeline. At the front, they will search the design space of post-quantum mix-nets, 
+from published candidates~\cite{aranha2023mixnet,bootle2025mixnets,hough2025cic} to new variants the agents propose, 
+and encode each as a formal security statement. At the back, every candidate passes through our machine-checking pipeline, 
+where the agents attempt the proof and the proof assistant (Rocq and EasyCrypt) is the final arbiter. A team of experts in 
+post-quantum cryptography and formal verification monitors the process. The outcome is a machine-checked verdict for each 
+candidate, sound or refuted, in weeks rather than years. Belenios is our proving ground because it is a widely deployed 
+and heavily scrutinised system~\cite{cortier2017sp,cortier2018belenioseasycrypt}; its code base was also reused to build 
+the official independent verifier for the 2022 French legislative election for overseas voters, commissioned by the 
+French foreign ministry~\cite{vvfe,cortier2023french}.
 
 
 
