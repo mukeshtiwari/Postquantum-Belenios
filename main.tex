@@ -34,7 +34,7 @@
 
 \begin{center}
 {\large\bfseries PQ-Belenios: AI-Assisted Formal Verification for the Post-Quantum Migration of Verifiable Electronic Voting}\\[2pt]
-{\small Mukesh Tiwari, Fran\c{c}ois Dupressoir, Kerstin Eder (University of Bristol), Kristian Gj{\o}steen (NTNU),\\
+{\small Mukesh Tiwari, Fran\c{c}ois Dupressoir, Kerstin Eder, Nirav Ajmeri (University of Bristol), Kristian Gj{\o}steen (NTNU),\\
 V{\'e}ronique Cortier, Pierrick Gaudry (CNRS, Inria, LORIA)}
 \end{center}
 
@@ -48,20 +48,24 @@ break. Anyone can download the ballots now and, once such a computer exists, lea
 cryptography cannot wait for the NCSC's 2035 deadline~\cite{ncsc2025pqc}.
 
 Post-quantum replacements for these primitives exist, but they are much harder to get right.
-The lattice-based mix-net of Aranha et al.~\cite{aranha2023mixnet} (CCS 2023) came with a security proof and an
-implementation, yet Bootle et al.~\cite{bootle2025mixnets} showed that a malicious mixer can change votes without
+The lattice-based mix-net of Aranha et al.~\cite{aranha2023mixnet} (CCS 2023) came with a security proof, yet Bootle 
+et al.~\cite{bootle2025mixnets} showed that a malicious mixer can change votes without
 being detected. The proof used a step that holds over fields but fails over the rings used in lattice cryptography.
 The same bug appears in an earlier paper~\cite{aranha2021shuffle} and a later one~\cite{hough2025cic}, and passed
 three rounds of peer review. Bootle et al.\ propose a fix, but their proof is again on paper only and may hide a
 similar gap. Machine-checked proofs catch such errors, but today each one takes experts years; at that rate, almost
-nothing will be verified before 2035. \textbf{Our vision is that AI agents, supervised by experts and checked by a proof assistant, 
-turn machine-checked post-quantum migration from a multi-year research project into a task of months.} We will use 
-AI agents at both ends of the pipeline. At the front, they will search the design space of post-quantum mix-nets, 
-from published candidates~\cite{aranha2023mixnet,bootle2025mixnets,hough2025cic} to new variants the agents propose, 
-and encode each as a formal security statement. At the back, every candidate passes through our machine-checking pipeline, 
-where the agents attempt the proof and the proof assistant (Rocq and EasyCrypt) is the final arbiter. A team of experts in 
-post-quantum cryptography and formal verification monitors the process. The outcome is a machine-checked verdict for each 
-candidate, sound or refuted, in weeks rather than years. Belenios is our proving ground because it is a widely deployed 
+nothing will be verified before 2035. \textbf{Our vision is that AI agents, supervised by experts and checked by the Rocq and 
+the EasyCrypt proof assistant, turn machine-checked post-quantum migration from a multi-year research project into a task of months.} 
+Our post-quantum cryptography experts will start from the lattice-based proof of shuffle of Aranha et al.~\cite{aranha2021shuffle},
+co-authored by Gj{\o}steen, a member of this team, and the mix-net built on it~\cite{aranha2023mixnet}.
+Their definition and security proof go through our AI-assisted machine-checking pipeline, where AI agents attempt the
+formal proof in proof assistants Rocq and EasyCrypt; the proof assistants are the final arbiter. A proof assistant requires
+every step to hold for all values, so a step that fails for some values leaves the agents with a goal they cannot close,
+and that goal points to a counterexample. Our formal verification experts first confirm that the goal is truly unprovable;
+our post-quantum experts then fix the flaw by revising the definition and the proof, and the revised versions go through
+the pipeline again.
+The outcome of this iterative process is a post-quantum mix-net with a machine-checked security proof. Belenios is our 
+proving ground because it is a widely deployed 
 and heavily scrutinised system~\cite{cortier2017sp,cortier2018belenioseasycrypt}; its code base was also reused to build 
 the official independent verifier for the 2022 French legislative election for overseas voters, commissioned by the 
 French foreign ministry~\cite{vvfe,cortier2023french}.
@@ -74,17 +78,17 @@ Gj{\o}steen co-designed the lattice shuffle and mix-net at the centre of this
 project~\cite{aranha2021shuffle,aranha2023mixnet}. Cortier, Dupressoir, and Tiwari built the machine-checked proofs
 and verifiers of classical Belenios~\cite{cortier2017sp,cortier2018belenioseasycrypt,haines2019verified,287095}.
 Their question is: \emph{given a voting system whose classical version already has machine-checked proofs, how do we
-get a machine-checked verdict on each of its post-quantum candidates, at a small fraction of the original expert
+get a machine-checked security proof for its post-quantum version, at a small fraction of the original expert
 cost?} Experts cannot close this gap alone. Moving a proof from classical groups to lattice rings means
 re-establishing every lemma in a new algebraic setting and adding noise bounds, norm reasoning, and approximate
-soundness, where the extractor recovers only a short witness rather than an exact one. This is large, repetitive,
-and error-prone work, and the error in Section~1 is exactly this kind. AI can do this work safely here because
-the proof assistant's kernel rejects every incorrect proof: \emph{AI proposes, the kernel disposes}.
+soundness, where the extractor recovers only a short witness rather than an exact one. This work is large, repetitive,
+and error-prone, and the flaw described in Section~1 is exactly the kind of error it produces. AI can do this work safely
+because the proof assistant is the final arbiter: its kernel rejects every incorrect proof.
 Recent results show that this is now realistic. Agentic AI has produced EasyCrypt proofs in hours that previously
 took experts months~\cite{ma2026shannonprover}, and has written Rocq proofs of crash-freedom for production software
 at a scale of 180 million lines~\cite{anthropic2026formal}. Both report the same limitation: a proof is only as good
 as its specification. Neither has tackled the probabilistic, lattice-based security proofs that the post-quantum
-migration needs. This project tests exactly that step. The project sits in the call's \emph{quantum technologies}
+migration needs; this project takes that step. The project sits in the call's \emph{quantum technologies}
 priority area, on its security side: quantum computing is the reason every deployed public-key system must be replaced.
 
 \subsection{Scope: from classical to post-quantum Belenios}
@@ -93,7 +97,7 @@ Pedersen threshold key generation, and the Terelius--Wikstr\"om shuffle~\cite{te
 simple approval and list votes through homomorphic tallying, and complex methods (Condorcet--Schulze, Single
 Transferable Vote, and Majority Judgment) through verifiable mix-nets. We start with the primitives that matter most
 for ballot secrecy and integrity: ballot encryption, the proof of shuffle, verifiable decryption, signatures, and
-secure channels. Ballot validity proofs and key generation will follow in later work.
+secure channels.
 \begin{itemize}
 \item \textbf{Standardised primitives with existing machine-checked proofs.} We move ballot signatures to ML-DSA
 and trustee channels to ML-KEM. Both are NIST standards whose security proofs are already machine-checked in
@@ -107,13 +111,176 @@ shuffle~\cite{cortier2018belenioseasycrypt,haines2019verified,287095}), and thos
 Belenios a fair test of whether AI can transfer an existing machine-checked proof to the post-quantum setting.
 \end{itemize}
 By the end of the project, a Schulze, STV, or Majority Judgment election in Belenios can run on post-quantum primitives
-from start to finish, apart from key generation, with its core cryptographic components machine-checked.
+from start to finish with its core cryptographic components machine-checked.
+
+\subsection{Methodology and work packages}
+Tiwari leads the project and delivers most of the technical work, in Rocq and in the agent pipeline, working
+closely with Dupressoir on EasyCrypt. The AI connects to both proof
+assistants through model-agnostic Model Context Protocol (MCP) tool servers, so we can compare frontier and
+open-weight models and avoid depending on one vendor. We use two proof assistants because the project needs two
+kinds of proof. EasyCrypt's probabilistic relational logic suits the game-based privacy and soundness proofs, and
+the classical Belenios proofs already use it~\cite{cortier2017sp,cortier2018belenioseasycrypt}. Rocq extracts
+verified OCaml code that plugs into Belenios and has the algebra libraries the ring reasoning needs; our classical
+verified verifiers are written in it~\cite{haines2019verified,287095}. Running the agents on both also tests whether
+the method generalises beyond a single tool. All work packages follow the loop set out in Section~1: the post-quantum
+experts supply definitions and proofs, the agents attempt to machine-check them, the formal verification experts
+(Tiwari, Dupressoir, Cortier) confirm that any goal left open is genuinely unprovable, and the post-quantum experts
+revise; we iterate until every proof closes. Timings and deliverables are on the workplan page.
+
+\textbf{WP1: The mix-net as formal statements (Gj{\o}steen, Cortier, Tiwari; M1--M5).} Starting from the definitions
+and proofs of the lattice shuffle~\cite{aranha2021shuffle} and of the mix-net and verifiable decryption built on
+it~\cite{aranha2023mixnet}, AI agents draft EasyCrypt and Rocq models. Their security statements reuse the
+ballot-privacy and verifiability definitions of the classical Belenios
+proofs~\cite{cortier2017sp,cortier2018belenioseasycrypt}, so that classical and post-quantum guarantees are directly
+comparable. The domain experts review every model in two specification sprints, one at NTNU and one at LORIA. Output: \emph{PQVote-Bench}, an open
+benchmark of lemmas, each paired with its classical counterpart where one exists, with a held-out test split and
+recorded expert baselines (D1.1).
+
+\textbf{WP2: Agentic proof and expert revision (Dupressoir; M3--M11).} We extend the ShannonProver
+approach~\cite{ma2026shannonprover} from standard primitives to lattice protocols: agents split each theorem into
+game hops and lemmas and search for EasyCrypt proof scripts, guided by prover feedback. Agents retrieve the matching
+classical lemma (e.g.\ special soundness of Chaum--Pedersen) and adapt it to its lattice counterpart, repairing it
+from kernel error messages~\cite{first2023baldur}. When a lemma resists proof, the agents use the open goal to search
+for a counterexample and machine-check it. The formal verification experts confirm that the goal is genuinely
+unprovable rather than merely beyond the agents; the post-quantum experts then revise the definition and the proof,
+and the revised version goes through the pipeline again. The first iteration has a known answer: the pipeline must refute the flawed shuffle
+argument of~\cite{aranha2021shuffle} by exhibiting ring elements with $a_1a_2=b_1b_2$ that are not a permutation of
+each other. For the repair, the experts can draw on the general permutation argument of Bootle et
+al.~\cite{bootle2025mixnets}, adapted to the re-encryption setting. We run controlled
+comparisons (no AI; single-shot model; agentic; agentic with transfer) and record the share of lemmas closed
+automatically, expert hours, and compute cost. Outputs: machine-checked security proofs of the revised shuffle and mix-net (D2.1), evaluation report (D2.2).
+
+\textbf{WP3: Verified post-quantum verifier for Belenios (Tiwari, Gaudry; M4--M12).} With the WP2 agents, we formalise the
+verification equations of the revised shuffle and decryption proofs from WP2, prove them correct in Rocq
+against the WP1 specification, and extract an OCaml verifier, following our classical verified
+verifiers~\cite{haines2019verified,287095}. Gaudry leads the integration of ML-DSA, ML-KEM, and the verified verifier
+into the Belenios code base, building on the team's experience turning Belenios into the official verifier for the 2022
+French legislative election~\cite{vvfe,cortier2023french}. We test the verifier on transcripts from a post-quantum
+Belenios prototype. The two proof assistants meet at the verification predicate: EasyCrypt proves that acceptance
+implies a correct shuffle, and Rocq proves that the extracted verifier computes that predicate. We write the
+predicate once in Rocq, translate it to EasyCrypt with AI assistance, and validate the translation by expert review
+and by evaluating both versions on shared test vectors. A fully formal EasyCrypt-to-Rocq bridge is beyond this
+project and is part of the roadmap (D4.2). Output: verifier, integration into the experimental post-quantum version of Belenios, and test harness (D3.1).
+
+\textbf{WP4: Trustworthy AI-assisted verification (Ajmeri, Eder; M1--M12).} The proof assistant
+rejects any incorrect AI-produced proof, so the remaining risk lies in the specification: an AI-drafted
+theorem may be vacuous, or may describe the wrong protocol. Large-scale AI verification efforts report
+exactly this failure mode, including agents that weaken a specification so that it becomes easier to
+prove~\cite{anthropic2026formal}. WP4 therefore requires a named domain expert to sign off every
+AI-drafted or AI-modified specification, and runs automated checks on each one: \emph{specification
+mutation} (a deliberately broken protocol must fail to verify) and vacuity tests. Specialist agents (formaliser,
+prover, critic, auditor) work under explicit norms on who may change a specification and when a human must sign
+off. WP4 also logs the provenance of every AI-produced artefact. Outputs: workflow guide and failure taxonomy (D4.1),
+roadmap (D4.2).
+
+\subsection{Building on prior work}
+The project reuses substantial existing assets rather than building foundations: the EasyCrypt privacy and
+verifiability proofs of Belenios~\cite{cortier2017sp,cortier2018belenioseasycrypt} (Cortier, Dupressoir); the
+open-source Belenios code base~\cite{cortier2019belenios} (Cortier, Gaudry); the Rocq verified
+verifiers and machine-checked Terelius--Wikstr\"om and Bayer--Groth shuffle proofs~\cite{haines2019verified,287095}
+(Tiwari); the lattice voting protocols~\cite{aranha2021shuffle,aranha2023mixnet} (Gj{\o}steen); the machine-checked
+ML-KEM and ML-DSA proofs~\cite{almeida2024mlkem,barbosa2023dilithium}; and the ShannonProver agentic
+system~\cite{ma2026shannonprover} (Dupressoir). The grant pays for the new part: AI-assisted transfer to the
+post-quantum setting.
+
+\subsection{Effectiveness: success criteria}
+We will count the project a success if (i) the pipeline refutes the known-flawed shuffle argument and the
+revised shuffle and mix-net have machine-checked security proofs; (ii) at least 60\% of PQVote-Bench test lemmas close
+without human-written proof steps; (iii) expert time falls at least five-fold against the recorded baselines; and
+(iv) an end-of-project review by Cortier and Gaudry, who did not design the lattice protocol, finds no accepted specification defect.
+Negative results are also valuable: a precise map of where current AI fails on lattice proofs (e.g.\ norm reasoning
+or probabilistic coupling) is a deliverable in its own right.
+
+\subsection{Feasibility and risk management}
+Tiwari, as project lead, chairs a fortnightly technical meeting and a monthly steering meeting with all co-leads.
+\emph{(1) AI fails on lattice-specific reasoning.} A month-6 go/no-go (M2) narrows the scope to component lemmas,
+and the failures are documented as a research result. \emph{(2) AI-drafted specifications are subtly wrong.} Expert
+sign-off is mandatory, and WP4 mutation and vacuity checks run before any lemma enters PQVote-Bench. \emph{(3) The
+revised proof cannot be completed.} This is a finding, not a failure: either the agents locate a further gap, which
+the experts use in the next revision, or the unprovable step is documented. \emph{(4) Model access or cost changes.} MCP interfaces are
+model-agnostic, with an open-weight fallback. \emph{(5) Dependence on one main technical contributor.} Each work package
+has a named co-lead, and Dupressoir can take over the agent pipeline if needed.
+
+\subsection{Translating outputs into impact}
+PQVote-Bench, the agent pipeline, MCP tool servers, proofs, and verifier will be released under open licences.
+Cortier and Gaudry, who maintain Belenios, have agreed to include the project's verified outputs (the post-quantum
+primitives and the verified verifier) in an experimental version of Belenios that uses post-quantum algorithms, giving them a direct route to real
+elections; we will also offer contributions to EasyCrypt. Any flaw found in a published
+or deployed design will go through coordinated disclosure with its authors before publication. A closing workshop in
+Bristol (M12) will bring together cryptographers, formal-methods and AI researchers, and election stakeholders. The
+roadmap (D4.2) sets out how the workflow transfers to other systems that must migrate by 2035, such as messaging,
+identity, and payments, and will form the basis of a follow-on proposal.
+
+\subsection{Research environment}
+Bristol brings together the disciplines the project needs: formal verification of voting (Tiwari), the
+cryptography and EasyCrypt group (Dupressoir), the Trustworthy Systems Laboratory (Eder), which works on the
+verification of AI-enabled systems, and research on accountable multi-agent systems (Ajmeri). NTNU (Gj{\o}steen) is a leading centre for lattice-based voting protocols, and
+LORIA in Nancy (Cortier, Gaudry) is where Belenios is developed and maintained. Tiwari will make research visits to
+NTNU and LORIA for the specification sprints.
+
 
 
 {\small
 \bibliographystyle{abbrv}
 \bibliography{ref}
 }
+
+
+% ======================= Optional workplan page =======================
+\clearpage
+\section*{Workplan (12 months, start 26 April 2027)}
+
+\begin{center}
+\begin{ganttchart}[
+    hgrid, vgrid,
+    x unit=0.82cm, y unit chart=0.6cm,
+    title height=1,
+    bar/.append style={fill=blue!35},
+    group/.append style={fill=blue!70!black},
+    milestone/.append style={fill=orange, draw=orange!60!black},
+    bar label font=\small, group label font=\small\bfseries,
+    milestone label font=\small\itshape,
+    bar height=0.55, group peaks height=0.25
+  ]{1}{12}
+  \gantttitle{2027 (Apr--Dec)}{9} \gantttitle{2028}{3}\\
+  \gantttitlelist{1,...,12}{1}\\
+  \ganttgroup{WP1 Mix-net as statements}{1}{5}\\
+  \ganttbar{Autoformalise shuffle and mix-net}{1}{3}\\
+  \ganttbar{Specification sprints (NTNU, LORIA)}{2}{4}\\
+  \ganttmilestone{D1.1 PQVote-Bench v1}{5}\\
+  \ganttgroup{WP2 Proof and expert revision}{3}{11}\\
+  \ganttbar{Pipeline adaptation; known-answer test}{3}{6}\\
+  \ganttbar{Classical-to-PQ transfer and repair}{5}{9}\\
+  \ganttbar{Expert revision and re-checking}{6}{10}\\
+  \ganttbar{Controlled evaluation}{8}{11}\\
+  \ganttmilestone{D2.1 Proofs; D2.2 Evaluation}{11}\\
+  \ganttgroup{WP3 Verified PQ verifier}{4}{12}\\
+  \ganttbar{Rocq formalisation of verifier}{4}{9}\\
+  \ganttbar{Extraction; integration into Belenios}{9}{12}\\
+  \ganttmilestone{D3.1 Verifier and harness}{12}\\
+  \ganttgroup{WP4 Trustworthy AI verification}{1}{12}\\
+  \ganttbar{Agent norms and provenance}{1}{4}\\
+  \ganttbar{Specification assurance}{3}{11}\\
+  \ganttbar{Workflow guide, roadmap, workshop}{10}{12}\\
+  \ganttmilestone{D4.1 Guide; D4.2 Roadmap}{12}
+\end{ganttchart}
+\end{center}
+
+\vspace{4pt}
+\begin{tabular}{@{}p{1.6cm}p{11.0cm}p{3.4cm}@{}}
+\toprule
+\textbf{ID (month)} & \textbf{Deliverable / milestone} & \textbf{Lead}\\
+\midrule
+M1 (2) & Kick-off; scope and security definitions agreed & Gj{\o}steen, Cortier, Tiwari\\
+D1.1 (5) & PQVote-Bench v1: reviewed EasyCrypt and Rocq statements of the shuffle and mix-net, held-out split, expert baselines & Tiwari, Dupressoir\\
+M2 (6) & Pipeline running end-to-end; known-answer test on the flawed shuffle passed (go/no-go) & Dupressoir\\
+D2.1 (11) & Machine-checked security proofs of the revised shuffle and mix-net & Dupressoir, Gj{\o}steen\\
+D2.2 (11) & Evaluation report: automation rate, expert time, cost, failure taxonomy & Dupressoir, Eder\\
+D3.1 (12) & Rocq-verified OCaml verifier for the lattice shuffle and decryption; Belenios integration and test harness & Tiwari, Gaudry\\
+D4.1 (12) & Open workflow guide for trustworthy AI-assisted verification & Ajmeri, Eder\\
+D4.2 (12) & Roadmap; closing workshop; follow-on proposal & All\\
+\bottomrule
+\end{tabular}
 
 
 \end{document}
